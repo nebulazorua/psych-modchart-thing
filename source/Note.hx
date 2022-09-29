@@ -251,12 +251,12 @@ class Note extends FlxSprite
 
 			if(PlayState.isPixelStage) {
 				scale.y *= PlayState.daPixelZoom;
-				defScale.copyFrom(scale);
 				updateHitbox();
 			}
 		} else if(!isSustainNote) {
 			earlyHitMult = 1;
 		}
+		defScale.copyFrom(scale);
 		x += offsetX;
 	}
 
