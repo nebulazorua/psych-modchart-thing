@@ -1,5 +1,6 @@
 package;
 
+import flixel.math.FlxPoint;
 import flixel.FlxG;
 import openfl.utils.Assets;
 import lime.utils.Assets as LimeAssets;
@@ -17,6 +18,27 @@ using StringTools;
 
 class CoolUtil
 {
+
+	inline public static function scale(x:Float, l1:Float, h1:Float, l2:Float, h2:Float):Float
+		return ((x - l1) * (h2 - l2) / (h1 - l1) + l2);
+
+	inline public static function clamp(n:Float, l:Float, h:Float)
+	{
+		if (n > h)
+			n = h;
+		if (n < l)
+			n = l;
+
+		return n;
+	}
+
+	public static function rotate(x:Float, y:Float, angle:Float, ?point:FlxPoint):FlxPoint
+	{
+		var p = point == null ? FlxPoint.weak() : point;
+		p.set((x * Math.cos(angle)) - (y * Math.sin(angle)), (x * Math.sin(angle)) + (y * Math.cos(angle)));
+		return p;
+	}
+	
 	public static var defaultDifficulties:Array<String> = [
 		'Easy',
 		'Normal',
@@ -29,7 +51,6 @@ class CoolUtil
 	inline public static function quantize(f:Float, snap:Float){
 		// changed so this actually works lol
 		var m:Float = Math.fround(f * snap);
-		trace(snap);
 		return (m / snap);
 	}
 	

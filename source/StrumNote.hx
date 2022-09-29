@@ -1,16 +1,25 @@
 package;
 
+import flixel.math.FlxPoint;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
-
+import math.Vector3;
 using StringTools;
 
 class StrumNote extends FlxSprite
 {
+	public var vec3Cache:Vector3 = new Vector3(); // for vector3 operations in modchart code
+	public var defScale:FlxPoint = FlxPoint.get(); // for modcharts to keep the scaling
+
+	override function destroy()
+	{
+		defScale.put();
+		super.destroy();
+	}	
 	private var colorSwap:ColorSwap;
 	public var resetAnim:Float = 0;
-	private var noteData:Int = 0;
+	public var noteData:Int = 0;
 	public var direction:Float = 90;//plan on doing scroll directions soon -bb
 	public var downScroll:Bool = false;//plan on doing scroll directions soon -bb
 	public var sustainReduce:Bool = true;
@@ -111,6 +120,7 @@ class StrumNote extends FlxSprite
 					animation.addByPrefix('confirm', 'right confirm', 24, false);
 			}
 		}
+		defScale.copyFrom(scale);
 		updateHitbox();
 
 		if(lastAnim != null)
