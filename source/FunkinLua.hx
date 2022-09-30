@@ -225,6 +225,31 @@ class FunkinLua {
 		set('buildTarget', 'unknown');
 		#end
 
+		// mod manager
+		Lua_helper.add_callback(lua, "queueSet", function(step:Float, modName:String, target:Float, player:Int = -1)
+		{
+			PlayState.instance.modManager.queueSet(step, modName, target, player);
+		});
+
+		Lua_helper.add_callback(lua, "queueSetP", function(step:Float, modName:String, perc:Float, player:Int = -1)
+		{
+			PlayState.instance.modManager.queueSetP(step, modName, perc, player);
+		});
+		
+		Lua_helper.add_callback(lua, "queueEase",
+			function(step:Float, endStep:Float, modName:String, percent:Float, style:String = 'linear', player:Int = -1,
+					?startVal:Float) // lua is autistic and can only accept 5 args
+		{
+			PlayState.instance.modManager.queueEase(step, endStep, modName, percent, style, player, startVal);
+		});
+
+		Lua_helper.add_callback(lua, "queueEaseP",
+			function(step:Float, endStep:Float, modName:String, percent:Float, style:String = 'linear', player:Int = -1,
+					?startVal:Float) // lua is autistic and can only accept 5 args
+			{
+				PlayState.instance.modManager.queueEaseP(step, endStep, modName, percent, style, player, startVal);
+			});
+
 		// custom substate
 		Lua_helper.add_callback(lua, "openCustomSubstate", function(name:String, pauseGame:Bool = false) {
 			if(pauseGame)

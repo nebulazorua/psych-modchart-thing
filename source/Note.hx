@@ -322,8 +322,8 @@ class Note extends FlxSprite
 		}
 		if(isSustainNote) {
 			scale.y = lastScaleY;
-			defScale.copyFrom(scale);
 		}
+		defScale.copyFrom(scale);
 		updateHitbox();
 
 		if(animName != null)
