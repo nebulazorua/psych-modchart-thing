@@ -146,8 +146,9 @@ class ReverseModifier extends NoteModifier {
         var subMods:Array<String> = ["cross", "split", "alternate", "reverseScroll", "crossScroll", "splitScroll", "alternateScroll", "centered", "unboundedReverse"];
 
         var receptors = modMgr.receptors[0];
-        for(recep in receptors){
-            subMods.push('reverse${recep.noteData}');
+		for (i in 0...4)
+		{
+            subMods.push('reverse${i}');
         }
         return subMods;
     }

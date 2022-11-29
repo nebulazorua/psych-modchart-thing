@@ -102,16 +102,51 @@ class ModManager {
             // thanks 4mbr0s3 for giving an alternative way to do all of this cus andromeda has smth similar in Flexy but like
             // this is a better way to do it
             // (ofc its not EXACTLY what 4mbr0s3 did but.. y'know, it's close to it)
+
+			// so this actually has an issue
+			// this doesnt take into account any other submods
+			// so if you turn a submod off
+			// it turns the parent mod off, too, when it shouldnt
+			// so what I need to do is like, check other submods before removing the parent
             
 			if (activeMods[player] == null)
 				activeMods[player]=[];
 
 			register.get(modName).setValue(val, player);
 			
-			if (!activeMods[player].contains(name) && mod.shouldExecute(player, val))
+			if (!activeMods[player].contains(name) && mod.shouldExecute(player, val)){
+				if (daMod.getName() != name)
+					activeMods[player].push(daMod.getName());
 				activeMods[player].push(name);
-			else if (activeMods[player].contains(name) && !mod.shouldExecute(player, val))
-				activeMods[player].remove(name);
+			}else if (!mod.shouldExecute(player, val)){
+
+				// there is prob a better way to do this
+				// i just dont know it
+				var modParent = daMod.parent;
+				if(modParent==null){
+					for (name => mod in daMod.submods)
+					{
+						modParent = daMod; // because if this gets called at all, there's atleast 1 submod!!
+						break;
+					}
+				}
+				if(daMod!=modParent)
+					activeMods[player].remove(daMod.getName());
+				if (modParent!=null){
+					if (modParent.shouldExecute(player, modParent.getValue(player))){
+						activeMods[player].sort((a, b) -> Std.int(register.get(a).getOrder() - register.get(b).getOrder()));
+						return;
+					}
+					for (subname => submod in modParent.submods){
+						if(submod.shouldExecute(player, submod.getValue(player))){
+							activeMods[player].sort((a, b) -> Std.int(register.get(a).getOrder() - register.get(b).getOrder()));
+							return;
+						}
+					}
+					activeMods[player].remove(modParent.getName());
+				}else
+					activeMods[player].remove(daMod.getName());
+			}
 
 			activeMods[player].sort((a, b) -> Std.int(register.get(a).getOrder() - register.get(b).getOrder()));
 		}
@@ -136,26 +171,12 @@ class ModManager {
 	public function getBaseX(direction:Int, player:Int):Float
 	{
 		var x:Float = (FlxG.width / 2) - Note.swagWidth - 54 + Note.swagWidth * direction;
-		if(!ClientPrefs.middleScroll){
-			switch (player)
-			{
-				case 0:
-					x += FlxG.width / 2 - Note.swagWidth * 2 - 100;
-				case 1:
-					x -= FlxG.width / 2 - Note.swagWidth * 2 - 100;
-			}
-		}else{
-			switch(player){
-				case 0:
-
-				case 1:
-					switch(direction){
-						case 0 | 1:
-							x -= Note.swagWidth * 3;
-						case 2 | 3:
-							x += Note.swagWidth * 3;
-					}
-			}
+		switch (player)
+		{
+			case 0:
+				x += FlxG.width / 2 - Note.swagWidth * 2 - 100;
+			case 1:
+				x -= FlxG.width / 2 - Note.swagWidth * 2 - 100;
 		}
 		
 		x -= 56;
@@ -179,6 +200,15 @@ class ModManager {
 				mod.updateReceptor(beat, o, pos, player);
 			}
         }
+		if((obj is Note))obj.updateHitbox();
+		
+		obj.centerOrigin();
+		obj.centerOffsets();
+		if((obj is Note)){
+			var cum:Note = cast obj;
+			cum.offset.x += cum.typeOffsetX;
+			cum.offset.y += cum.typeOffsetY;
+		}
     }
 
 	public inline function getVisPos(songPos:Float=0, strumTime:Float=0, songSpeed:Float=1){

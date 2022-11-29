@@ -32,6 +32,7 @@ class EaseEvent extends ModEvent {
 		{
 			if (this.startVal == null)
 				this.startVal = mod.getValue(player);
+			
 
 			var passed = curStep - executionStep;
 			var change = endVal - startVal;

@@ -36,13 +36,13 @@ class TransformModifier extends NoteModifier { // this'll be transformX in ModMa
 		var subMods:Array<String> = ["transformY", "transformZ", "transformX-a", "transformY-a", "transformZ-a"];
 
         var receptors = modMgr.receptors[0];
-        for(recep in receptors){
-			subMods.push('transform${recep.noteData}X');
-			subMods.push('transform${recep.noteData}Y');
-			subMods.push('transform${recep.noteData}Z');
-			subMods.push('transform${recep.noteData}X-a');
-			subMods.push('transform${recep.noteData}Y-a');
-			subMods.push('transform${recep.noteData}Z-a');
+        for(i in 0...4){
+			subMods.push('transform${i}X');
+			subMods.push('transform${i}Y');
+			subMods.push('transform${i}Z');
+			subMods.push('transform${i}X-a');
+			subMods.push('transform${i}Y-a');
+			subMods.push('transform${i}Z-a');
         }
         return subMods;
     }
