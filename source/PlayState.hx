@@ -2108,7 +2108,9 @@ class PlayState extends MusicBeatState
 			}
 
 			modManager.receptors = [playerStrums.members, opponentStrums.members];
+			callOnLuas('preModifierRegister', []);
 			modManager.registerDefaultModifiers();
+			callOnLuas('postModifierRegister', []);
 			//Modcharts.loadModchart(modManager, SONG.song);
 
 			startedCountdown = true;
@@ -3241,6 +3243,7 @@ class PlayState extends MusicBeatState
 					else
 						daNote.mAngle = 0;
 				}
+
 				/*if (strumScroll) //Downscroll
 				{
 					//daNote.y = (strumY + 0.45 * (Conductor.songPosition - daNote.strumTime) * songSpeed);

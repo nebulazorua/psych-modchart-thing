@@ -454,6 +454,15 @@ class NativeAudioSource
 		return value;
 	}
 
+	public function getPitch(){
+		return __pitch;
+	}
+
+	public function setPitch(val:Float)
+	{
+		return updatePitch(val);
+	}
+
 	public function getGain():Float
 	{
 		if (handle != null)

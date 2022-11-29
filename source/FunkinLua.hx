@@ -1,5 +1,6 @@
 package;
 
+import modchart.SubModifier;
 #if LUA_ALLOWED
 import llua.Lua;
 import llua.LuaL;
@@ -226,6 +227,32 @@ class FunkinLua {
 		#end
 
 		// mod manager
+		Lua_helper.add_callback(lua, "setPercent", function(modName:String, val:Float, player:Int=-1)
+		{
+			PlayState.instance.modManager.setPercent(modName, val, player);
+		});
+
+		Lua_helper.add_callback(lua, "addBlankMod", function(modName:String, defaultVal:Float=0, player:Int = -1)
+		{
+			PlayState.instance.modManager.quickRegister(new SubModifier(modName, PlayState.instance.modManager));
+			PlayState.instance.modManager.setValue(modName, defaultVal);
+		});
+
+		Lua_helper.add_callback(lua, "setValue", function(modName:String, val:Float, player:Int = -1)
+		{
+			PlayState.instance.modManager.setValue(modName, val, player);
+		});
+
+		Lua_helper.add_callback(lua, "getPercent", function(modName:String, player:Int)
+		{
+			return PlayState.instance.modManager.getPercent(modName, player);
+		});
+
+		Lua_helper.add_callback(lua, "getValue", function(modName:String, player:Int)
+		{
+			return PlayState.instance.modManager.getValue(modName, player);
+		});
+
 		Lua_helper.add_callback(lua, "queueSet", function(step:Float, modName:String, target:Float, player:Int = -1)
 		{
 			PlayState.instance.modManager.queueSet(step, modName, target, player);
@@ -238,14 +265,14 @@ class FunkinLua {
 		
 		Lua_helper.add_callback(lua, "queueEase",
 			function(step:Float, endStep:Float, modName:String, percent:Float, style:String = 'linear', player:Int = -1,
-					?startVal:Float) // lua is autistic and can only accept 5 args
+					?startVal:Float) 
 		{
 			PlayState.instance.modManager.queueEase(step, endStep, modName, percent, style, player, startVal);
 		});
 
 		Lua_helper.add_callback(lua, "queueEaseP",
 			function(step:Float, endStep:Float, modName:String, percent:Float, style:String = 'linear', player:Int = -1,
-					?startVal:Float) // lua is autistic and can only accept 5 args
+					?startVal:Float)
 			{
 				PlayState.instance.modManager.queueEaseP(step, endStep, modName, percent, style, player, startVal);
 			});
@@ -3133,14 +3160,32 @@ class FunkinLua {
 		#end
 	}
 
-	function getErrorMessage() {
+	function getErrorMessage(status:Int):String
+	{
 		#if LUA_ALLOWED
 		var v:String = Lua.tostring(lua, -1);
-		if(!isErrorAllowed(v)) v = null;
+		Lua.pop(lua, 1);
+
+		if (v != null)
+			v = v.trim();
+		if (v == null || v == "")
+		{
+			switch (status)
+			{
+				case Lua.LUA_ERRRUN:
+					return "Runtime Error";
+				case Lua.LUA_ERRMEM:
+					return "Memory Allocation Error";
+				case Lua.LUA_ERRERR:
+					return "Critical Error";
+			}
+			return "Unknown Error";
+		}
+
 		return v;
 		#end
+		return null;
 	}
-
 	// some fuckery fucks with linc_luajit
 	function getResult(l:State, result:Int):Any {
 		var ret:Any = null;
@@ -3159,8 +3204,30 @@ class FunkinLua {
 		return ret;
 	}
 
+	function typeToString(type:Int):String
+	{
+		#if LUA_ALLOWED
+		switch (type)
+		{
+			case Lua.LUA_TBOOLEAN:
+				return "boolean";
+			case Lua.LUA_TNUMBER:
+				return "number";
+			case Lua.LUA_TSTRING:
+				return "string";
+			case Lua.LUA_TTABLE:
+				return "table";
+			case Lua.LUA_TFUNCTION:
+				return "function";
+		}
+		if (type <= Lua.LUA_TNIL)
+			return "nil";
+		#end
+		return "unknown";
+	}
+
 	var lastCalledFunction:String = '';
-	public function call(func:String, args:Array<Dynamic>): Dynamic{
+	public function call(func:String, args:Array<Dynamic>):Dynamic {
 		#if LUA_ALLOWED
 		if(closed) return Function_Continue;
 
@@ -3170,29 +3237,31 @@ class FunkinLua {
 
 			Lua.getglobal(lua, func);
 			var type:Int = Lua.type(lua, -1);
+
 			if (type != Lua.LUA_TFUNCTION) {
+				if (type > Lua.LUA_TNIL)
+					luaTrace("ERROR (" + func + "): attempt to call a " + typeToString(type) + " value", false, false, FlxColor.RED);
+
+				Lua.pop(lua, 1);
 				return Function_Continue;
 			}
-			
-			for(arg in args) {
-				Convert.toLua(lua, arg);
+
+			for (arg in args) Convert.toLua(lua, arg);
+			var status:Int = Lua.pcall(lua, args.length, 1, 0);
+
+			// Checks if it's not successful, then show a error.
+			if (status != Lua.LUA_OK) {
+				var error:String = getErrorMessage(status);
+				luaTrace("ERROR (" + func + "): " + error, false, false, FlxColor.RED);
+				return Function_Continue;
 			}
 
-			var result:Null<Int> = Lua.pcall(lua, args.length, 1, 0);
-			var error:Dynamic = getErrorMessage();
-			if(!resultIsAllowed(lua, result))
-			{
-				Lua.pop(lua, 1);
-				if(error != null) luaTrace("ERROR (" + func + "): " + error, false, false, FlxColor.RED);
-			}
-			else
-			{
-				var conv:Dynamic = cast getResult(lua, result);
-				Lua.pop(lua, 1);
-				if(conv == null) conv = Function_Continue;
-				return conv;
-			}
-			return Function_Continue;
+			// If successful, pass and then return the result.
+			var result:Dynamic = cast Convert.fromLua(lua, -1);
+			if (result == null) result = Function_Continue;
+
+			Lua.pop(lua, 1);
+			return result;
 		}
 		catch (e:Dynamic) {
 			trace(e);

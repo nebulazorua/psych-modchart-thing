@@ -94,7 +94,7 @@ class AlphaModifier extends NoteModifier {
 			player, note, ["reverse"]);
 
 
-    var alphaMod = 1 - getSubmodValue("alpha",player) * (1-getSubmodValue("noteAlpha",player));
+		var alphaMod = (1 - getSubmodValue("alpha", player)) * (1 - getSubmodValue('alpha${note.noteData}', player)) * (1 - getSubmodValue("noteAlpha", player)) * (1 - getSubmodValue('noteAlpha${note.noteData}', player));
     var alpha = getVisibility(pos.y,player,note);
 
     if(getSubmodValue("dontUseStealthGlow",player)==0){
@@ -108,9 +108,9 @@ class AlphaModifier extends NoteModifier {
   }
 
   override function updateReceptor(beat:Float, receptor:StrumNote, pos:Vector3, player:Int){
-    var alpha = 1 - getSubmodValue("alpha",player);
-    if(getSubmodValue("dark",player)!=0 || getSubmodValue('dark${receptor.direction}',player)!=0){
-      alpha = alpha*(1-getSubmodValue("dark",player))*(1-getSubmodValue('dark${receptor.direction}',player));
+		var alpha = (1 - getSubmodValue("alpha", player)) * (1 - getSubmodValue('alpha${receptor.noteData}', player));
+		if (getSubmodValue("dark", player) != 0 || getSubmodValue('dark${receptor.noteData}',player)!=0){
+			alpha = alpha * (1 - getSubmodValue("dark", player)) * (1 - getSubmodValue('dark${receptor.noteData}',player));
     }
     @:privateAccess
 		receptor.colorSwap.daAlpha = alpha;
@@ -119,6 +119,11 @@ class AlphaModifier extends NoteModifier {
 
   override function getSubmods(){
     var subMods:Array<String> = ["noteAlpha", "alpha", "hidden","hiddenOffset","sudden","suddenOffset","blink","randomVanish","dark","useStealthGlow","stealthPastReceptors"];
+    for(i in 0...4){
+			subMods.push('noteAlpha$i');
+			subMods.push('alpha$i');
+			subMods.push('dark$i');
+    }
     return subMods;
   }
 }

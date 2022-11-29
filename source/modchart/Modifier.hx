@@ -46,7 +46,9 @@ class Modifier {
         return getModType()==MISC_MOD; // override in your modifier if you want it to have update(elapsed) called
     
 	public function shouldExecute(player:Int, value:Float):Bool
+	{
 		return value != 0; // override if your modifier should run, even if percent isn't 0
+	}
 
     public function getOrder():Int
 		return DEFAULT;
