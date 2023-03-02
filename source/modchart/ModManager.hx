@@ -115,7 +115,7 @@ class ModManager {
 		else
 		{
 			var daMod = register.get(modName);
-			if (mod == null)
+			if (daMod == null)
 			{
 				trace("cannot set " + modName + " because it is null lol");
 				return;
