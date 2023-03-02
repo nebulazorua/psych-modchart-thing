@@ -38,7 +38,7 @@ class AlphaModifier extends NoteModifier {
     var distFromCenter = yPos;
     var alpha:Float = 0;
 
-    if(yPos<0 && getSubmodValue("stealthPastReceptors", player)==0)
+    if((yPos-50)<0 && getSubmodValue("stealthPastReceptors", player)==0)
       return 1.0;
 
 
@@ -123,7 +123,7 @@ class AlphaModifier extends NoteModifier {
   }
 
   override function getSubmods(){
-    var subMods:Array<String> = ["noteAlpha", "alpha", "hidden","hiddenOffset","sudden","suddenOffset","blink","randomVanish","dark","useStealthGlow","stealthPastReceptors"];
+    var subMods:Array<String> = ["noteAlpha", "alpha", "hidden","hiddenOffset","sudden","suddenOffset","blink","randomVanish","dark","dontUseStealthGlow","stealthPastReceptors"];
     for(i in 0...4){
 			subMods.push('noteAlpha$i');
 			subMods.push('alpha$i');
