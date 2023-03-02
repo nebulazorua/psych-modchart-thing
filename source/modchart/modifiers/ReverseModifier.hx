@@ -48,11 +48,8 @@ class ReverseModifier extends NoteModifier {
             if(val>1)val=2-val;
         }
 
-
-
-
-        if(ClientPrefs.downScroll)
-            val = 1-val;
+       	if(ClientPrefs.downScroll)
+            val = 1 - val;
 
         return val;
     }
@@ -79,7 +76,7 @@ class ReverseModifier extends NoteModifier {
 				&& (!daNote.mustPress || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit))));
 			if (shitGotHit)
 			{
-				var center:Float = strumLine.y + Note.swagWidth / 2;
+				var center:Float = strumLine.y + Note.swagWidth* 0.5;
 				if (revPerc >= 0.5)
 				{
 					if (y - daNote.offset.y * daNote.scale.y + daNote.height >= center)
@@ -122,18 +119,18 @@ class ReverseModifier extends NoteModifier {
             {
                 var daY = pos.y;
 				var fakeCrochet:Float = (60 / PlayState.SONG.bpm) * 1000;
-                var songSpeed:Float = PlayState.instance.songSpeed;
+                var songSpeed:Float = PlayState.instance.songSpeed * note.multSpeed;
                 if (note.animation.curAnim.name.endsWith('end'))
                 {
-					daY += 10.5 * (fakeCrochet / 400) * 1.5 * songSpeed + (46 * (songSpeed - 1));
+					daY += 10.5 * (fakeCrochet * 0.0025) * 1.5 * songSpeed + (46 * (songSpeed - 1));
 					daY -= 46 * (1 - (fakeCrochet / 600)) * songSpeed;
-                    if (PlayState.isPixelStage)
+                    /*if (PlayState.isPixelStage)
 						daY += 8;
-                    else
+                    else*/
 						daY -= 19;
                 }
-				daY += (Note.swagWidth / 2) - (60.5 * (songSpeed - 1));
-				daY += 27.5 * ((PlayState.SONG.bpm / 100) - 1) * (songSpeed - 1);
+				daY += (Note.swagWidth* 0.5) - (60.5 * (songSpeed - 1));
+				daY += 27.5 * ((PlayState.SONG.bpm * 0.01) - 1) * (songSpeed - 1);
 
 				pos.y = lerp(pos.y, daY, perc);
             }

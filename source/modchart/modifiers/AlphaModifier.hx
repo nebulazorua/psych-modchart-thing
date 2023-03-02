@@ -19,19 +19,19 @@ class AlphaModifier extends NoteModifier {
   }
 
   public function getHiddenEnd(player:Int=-1){
-    return (FlxG.height / 2) + fadeDistY * CoolUtil.scale(getHiddenSudden(player),0,1,-1,-1.25) + (FlxG.height / 2) * getSubmodValue("hiddenOffset",player);
+    return (FlxG.height* 0.5) + fadeDistY * CoolUtil.scale(getHiddenSudden(player),0,1,-1,-1.25) + (FlxG.height* 0.5) * getSubmodValue("hiddenOffset",player);
   }
 
   public function getHiddenStart(player:Int=-1){
-    return (FlxG.height / 2) + fadeDistY * CoolUtil.scale(getHiddenSudden(player),0,1,0,-0.25) + (FlxG.height / 2) * getSubmodValue("hiddenOffset",player);
+    return (FlxG.height* 0.5) + fadeDistY * CoolUtil.scale(getHiddenSudden(player),0,1,0,-0.25) + (FlxG.height* 0.5) * getSubmodValue("hiddenOffset",player);
   }
 
   public function getSuddenEnd(player:Int=-1){
-    return (FlxG.height / 2) + fadeDistY * CoolUtil.scale(getHiddenSudden(player),0,1,1,1.25) + (FlxG.height / 2) * getSubmodValue("suddenOffset",player);
+    return (FlxG.height* 0.5) + fadeDistY * CoolUtil.scale(getHiddenSudden(player),0,1,1,1.25) + (FlxG.height* 0.5) * getSubmodValue("suddenOffset",player);
   }
 
   public function getSuddenStart(player:Int=-1){
-    return (FlxG.height / 2) + fadeDistY * CoolUtil.scale(getHiddenSudden(player),0,1,0,0.25) + (FlxG.height / 2) * getSubmodValue("suddenOffset",player);
+    return (FlxG.height* 0.5) + fadeDistY * CoolUtil.scale(getHiddenSudden(player),0,1,0,0.25) + (FlxG.height* 0.5) * getSubmodValue("suddenOffset",player);
   }
 
   function getVisibility(yPos:Float,player:Int,note:Note):Float{
@@ -59,12 +59,13 @@ class AlphaModifier extends NoteModifier {
 
 
     if(getSubmodValue("blink",player)!=0){
-      var f = CoolUtil.quantize(FlxMath.fastSin(time*10),0.3333);
+      var f = CoolUtil.quantizeAlpha(FlxMath.fastSin(time*10),0.3333);
       alpha += CoolUtil.scale(f,0,1,-1,0);
     }
 
     if(getSubmodValue("randomVanish",player)!=0){
       var realFadeDist:Float = 240;
+      // TODO: make this randomize the notes
       alpha += CoolUtil.scale(Math.abs(distFromCenter),realFadeDist,2*realFadeDist,-1,0)*getSubmodValue("randomVanish",player);
     }
 
@@ -87,23 +88,27 @@ class AlphaModifier extends NoteModifier {
 
 	override function updateNote(beat:Float, note:Note, pos:Vector3, player:Int){
     var player = note.mustPress==true?0:1;
-    @:privateAccess
+   /* @:privateAccess
 		var pos = modMgr.getPos(note.strumTime, modMgr.getVisPos(Conductor.songPosition, note.strumTime, PlayState.instance.songSpeed),
 			note.strumTime - Conductor.songPosition,
 			PlayState.instance.curDecBeat, note.noteData,
-			player, note, ["reverse"]);
+			player, note, ["reverse", "receptorScroll", "transformY"]);*/
+    var speed = PlayState.instance.songSpeed * note.multSpeed;
+		var yPos:Float = modMgr.getVisPos(Conductor.songPosition, note.strumTime, speed) + 50;
 
 
+		note.colorSwap.flash = 0;
 		var alphaMod = (1 - getSubmodValue("alpha", player)) * (1 - getSubmodValue('alpha${note.noteData}', player)) * (1 - getSubmodValue("noteAlpha", player)) * (1 - getSubmodValue('noteAlpha${note.noteData}', player));
-    var alpha = getVisibility(pos.y,player,note);
+		var alpha = getVisibility(yPos,player,note);
 
     if(getSubmodValue("dontUseStealthGlow",player)==0){
-			note.colorSwap.daAlpha = getAlpha(alpha);
+			note.alphaMod = getAlpha(alpha);
 			note.colorSwap.flash = getGlow(alpha);
     }else
-			note.colorSwap.daAlpha = alpha;
+			note.alphaMod = alpha;
     
-		note.colorSwap.daAlpha *= alphaMod;	
+    
+		note.alphaMod *= alphaMod;	
     
   }
 

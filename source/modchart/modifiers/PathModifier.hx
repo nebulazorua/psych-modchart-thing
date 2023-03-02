@@ -32,18 +32,8 @@ class PathModifier extends NoteModifier {
     super(modMgr, parent);
 		moveSpeed = getMoveSpeed();
 		var path:Array<Array<Vector3>> = getPath();
-    var dir:Int = 0;
-    // ridiculous that haxe doesnt have a numeric for loop
-
-    // neb from the future here
-    //.. it fucking does
-    // I forgot about (for start...end)
-    // You just can't set the interval.
-    // how did i forget it fucking has a numeric for loop im gonna kms.
-
-    // TODO: rewrite this.
-
-    while(dir<path.length){
+    for(dir in 0...path.length)
+    {
       var idx = 0;
       totalDists[dir]=0;
       pathData[dir]=[];
@@ -69,7 +59,6 @@ class PathModifier extends NoteModifier {
         });
         idx++;
       }
-      dir++;
     }
 
     for(dir in 0...totalDists.length){

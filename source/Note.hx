@@ -29,6 +29,14 @@ class Note extends FlxSprite
 		defScale.put();
 		super.destroy();
 	}	
+
+	public var zIndex:Float = 0;
+	public var desiredZIndex:Float = 0;
+	public var z:Float = 0;
+	public var garbage:Bool = false; // if this is true, the note will be removed in the next update cycle
+	public var alphaMod:Float = 1;
+	public var alphaMod2:Float = 1; // TODO: unhardcode this shit lmao
+
 	public var mAngle:Float = 0;
 	public var bAngle:Float = 0;
 	public var extraData:Map<String,Dynamic> = [];
@@ -364,7 +372,20 @@ class Note extends FlxSprite
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
+		if (isSustainNote)
+		{
+			if (prevNote != null && prevNote.isSustainNote)
+				zIndex = z + prevNote.zIndex;
+			else if (prevNote != null && !prevNote.isSustainNote)
+				zIndex = z + prevNote.zIndex - 1;
+		}
+		else
+			zIndex = z;
 
+		zIndex += desiredZIndex;
+		zIndex -= (mustPress == true ? 0 : 1);
+
+		colorSwap.daAlpha = alphaMod * alphaMod2;
 		if (mustPress)
 		{
 			// ok river

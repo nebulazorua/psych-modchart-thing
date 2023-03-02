@@ -73,7 +73,7 @@ class Modifier {
 			percents[player] = value;
 	}
 	public function setPercent(percent:Float, player:Int = -1)
-		setValue(percent / 100, player);
+		setValue(percent * 0.01, player);
 	
 
 	public function getSubmods():Array<String>

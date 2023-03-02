@@ -15,15 +15,34 @@ import modchart.events.*;
 class ModManager {
 	public function registerDefaultModifiers()
 	{
-		var quickRegs:Array<Any> = [FlipModifier, ReverseModifier, InvertModifier, DrunkModifier, BeatModifier, AlphaModifier, ScaleModifier, ConfusionModifier, OpponentModifier, TransformModifier, InfinitePathModifier, PerspectiveModifier];
+		var quickRegs:Array<Any> = [
+			FlipModifier,
+			ReverseModifier,
+			InvertModifier,
+			DrunkModifier,
+			BeatModifier,
+			AlphaModifier,
+			ReceptorScrollModifier, 
+			ScaleModifier, 
+			ConfusionModifier, 
+			OpponentModifier, 
+			TransformModifier, 
+			InfinitePathModifier, 
+			PerspectiveModifier, 
+			AccelModifier, 
+			XModifier
+		];
 		for (mod in quickRegs)
 			quickRegister(Type.createInstance(mod, [this]));
 
 		quickRegister(new RotateModifier(this));
-		quickRegister(new RotateModifier(this, 'center', new Vector3((FlxG.width / 2) - (Note.swagWidth/2), (FlxG.height / 2) - Note.swagWidth/2)));
+		quickRegister(new RotateModifier(this, 'center', new Vector3((FlxG.width* 0.5) - (Note.swagWidth/2), (FlxG.height* 0.5) - Note.swagWidth/2)));
 		quickRegister(new LocalRotateModifier(this, 'local'));
 		quickRegister(new SubModifier("noteSpawnTime", this));
-		setValue("noteSpawnTime", 1250);
+		setValue("noteSpawnTime", 2000);
+		setValue("xmod", 1);
+		for(i in 0...4)
+			setValue('xmod$i', 1);
 	}
 
 
@@ -96,6 +115,11 @@ class ModManager {
 		else
 		{
 			var daMod = register.get(modName);
+			if (mod == null)
+			{
+				trace("cannot set " + modName + " because it is null lol");
+				return;
+			}
 			var mod = daMod.parent==null?daMod:daMod.parent;
 			var name = mod.getName();
             // optimization shit!! :)
@@ -170,13 +194,13 @@ class ModManager {
 
 	public function getBaseX(direction:Int, player:Int):Float
 	{
-		var x:Float = (FlxG.width / 2) - Note.swagWidth - 54 + Note.swagWidth * direction;
+		var x:Float = (FlxG.width* 0.5) - Note.swagWidth - 54 + Note.swagWidth * direction;
 		switch (player)
 		{
 			case 0:
-				x += FlxG.width / 2 - Note.swagWidth * 2 - 100;
+				x += FlxG.width* 0.5 - Note.swagWidth * 2 - 100;
 			case 1:
-				x -= FlxG.width / 2 - Note.swagWidth * 2 - 100;
+				x -= FlxG.width* 0.5 - Note.swagWidth * 2 - 100;
 		}
 		
 		x -= 56;
@@ -237,10 +261,10 @@ class ModManager {
     }
 
 	public function queueEaseP(step:Float, endStep:Float, modName:String, percent:Float, style:String = 'linear', player:Int = -1, ?startVal:Float)
-		queueEase(step, endStep, modName, percent / 100, style, player, startVal / 100);
+		queueEase(step, endStep, modName, percent * 0.01, style, player, startVal * 0.01);
 	
 	public function queueSetP(step:Float, modName:String, percent:Float, player:Int = -1)
-		queueSet(step, modName, percent / 100, player);
+		queueSet(step, modName, percent * 0.01, player);
 	
 	
 
